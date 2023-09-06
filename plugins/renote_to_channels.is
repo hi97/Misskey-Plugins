@@ -1,0 +1,23 @@
+/// @ 0.13.3
+### {
+  name: "フォロー中またはお気に入りのチャンネルにRenote",
+  version: "1.0",
+  author: "hi97",
+  description: "選んだチャンネルにRenote",
+  permissions: ["write:notes", "read:channels"],
+  config: null
+}
+
+let LIMIT = 100
+let followedChannels = Mk:api("channels/followed", {limit: LIMIT})
+let myFavoritesChannels = Mk:api("channels/my-favorites", {limit: LIMIT})
+let channels = followedChannels.concat(myFavoritesChannels)
+each (let channel, channels) {
+  let CHANNEL_ID = channel.id
+  let CHANNEL_NAME = channel.name
+  Plugin:register_note_action(`Renote to {CHANNEL_NAME}`, @(note) {
+    Mk:api("notes/create", { channelId: CHANNEL_ID, renoteId: note.id })
+    Mk:dialog("", `Renoted to {CHANNEL_NAME}`, "success")
+    note
+  })
+}
